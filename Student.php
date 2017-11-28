@@ -31,45 +31,22 @@ class Student extends ObjectModel
 
     public function getHighestPoint()
     {
-        $best_point = 0;
-
         $sql = new DbQuery();
-        $sql->select('*');
+        $sql->select('MAX(average_points)');
         $sql->from('student');
+        $best_point = Db::getInstance()->executeS($sql);
 
-        $students = Db::getInstance()->executeS($sql);
-
-        foreach($students as $student)
-        {
-            if ($student['average_points'] > $best_point)
-                $best_point = $student['average_points'];
-            else
-                continue;
-        }
         return $best_point;
     }
 
     public function getBestStudent()
     {
-        $best_point = 0;
-        $best_student = null;
-
         $sql = new DbQuery();
         $sql->select('*');
         $sql->from('student');
+        $sql->where('average_points = (SELECT MAX(average_points) FROM student)');
 
-        $students = Db::getInstance()->executeS($sql);
-
-        foreach($students as $student)
-        {
-            if ($student['average_points'] > $best_point)
-            {
-                $best_point = $student['average_points'];
-                $best_student = $student;
-            }
-            else
-                continue;
-        }
+        $best_student = Db::getInstance()->executeS($sql);
         return $best_student;
     }
 }
